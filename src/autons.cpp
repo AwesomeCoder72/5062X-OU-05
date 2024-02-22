@@ -7,10 +7,12 @@
 
 #include "autons.hpp"
 
+void goofy_auton() {
+    spin_cata_auto(200);
+    pros::delay(1000);
+}
+
 void skills() {
-
-    actuate_intake(true);
-
     spin_cata_auto(100);
     pros::delay(36500); // 39500
     stop_cata_auto();
@@ -23,13 +25,13 @@ void skills() {
 
     chassis.moveToPoint(52.5, -44, 1500, 180);
 
-    actuate_wings(true);
+    actuate_front_wings(true);
 
     chassis.turnTo(58, 0, 600, true);
 
     chassis.moveToPoint(58, -24, 1500, 200); // side push??
 
-    actuate_wings(false);
+    actuate_front_wings(false);
 
     chassis.moveToPoint(58,-36, 1500, 160);
 
@@ -41,24 +43,24 @@ void skills() {
 
     chassis.moveToPoint(22,0,700,160);
 
-    actuate_wings(true);
+    actuate_front_wings(true);
 
     chassis.turnTo(48, 0, 600, true);
 
     chassis.moveToPoint(43, -8, 1500, 300); // first push
 
-    actuate_wings(false);
+    actuate_front_wings(false);
 
     chassis.moveToPoint(10, 15, 1500, 160);
 
-    actuate_wings(true);
+    actuate_front_wings(true);
 
 
     chassis.moveToPoint(43, 15, 1500, 300); // second push
 
     chassis.moveToPoint(10, 15, 1500, 160);
 
-    actuate_wings(false);
+    actuate_front_wings(false);
 
     chassis.turnTo(44, 50, 600, true);
 
@@ -66,13 +68,13 @@ void skills() {
 
     chassis.turnTo(60, 24, 600, true);
 
-    actuate_wings(true);
+    actuate_front_wings(true);
 
     chassis.moveToPoint(60, 18, 700, 200);
 
     chassis.moveToPoint(51, 42, 700, 200);
 
-    actuate_wings(false);
+    actuate_front_wings(false);
 
 
     chassis.moveToPoint(60, 18, 700, 200);

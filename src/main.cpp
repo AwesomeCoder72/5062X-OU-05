@@ -13,6 +13,7 @@
 #include "autons.hpp"
 #include "intake.hpp"
 #include "pistons.hpp"
+#include "pot_auton_selector.hpp"
 
 
 /*
@@ -50,21 +51,27 @@
 
 #define CATA_LIMIT_SWITCH_PORT 'H'
 #define AUTON_POT_PORT 'E'
-#define INTAKE_ACTUATOR_PORT 'G'
-#define WINGS_ACTUATOR_PORT 'F'
+
+// #define INTAKE_ACTUATOR_PORT 'G'
+#define RIGHT_FRONT_WING_ACTUATOR_PORT 'A'
+#define LEFT_FRONT_WING_ACTUATOR_PORT 'B'
+
+
 
 /*
 	CONTROLLER BUTTON DEFINITIONS
 */
 
-#define AUTON_SELECT_BUTTON pros::E_CONTROLLER_DIGITAL_UP
+// #define AUTON_SELECT_BUTTON pros::E_CONTROLLER_DIGITAL_UP
 
-#define CATA_LAUNCH_ONCE_BUTTON pros::E_CONTROLLER_DIGITAL_R1
+#define CATA_SHOOT_CONTINUALLY_BUTTON pros::E_CONTROLLER_DIGITAL_R1
 #define INTAKE_INTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_L1
 #define INTAKE_OUTTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_L2
 
-#define ACTUATE_INTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_X
-#define ACTUATE_WINGS_BUTTON pros::E_CONTROLLER_DIGITAL_A
+// #define ACTUATE_INTAKE_BUTTON pros::E_CONTROLLER_DIGITAL_X
+#define RIGHT_FRONT_WING_BUTTON pros::E_CONTROLLER_DIGITAL_X
+#define LEFT_FRONT_WING_BUTTON pros::E_CONTROLLER_DIGITAL_UP
+
 
 #define UP_MATCH_LOAD_SPEED_BUTTON pros::E_CONTROLLER_DIGITAL_LEFT
 #define DOWN_MATCH_LOAD_SPEED_BUTTON pros::E_CONTROLLER_DIGITAL_DOWN
@@ -98,27 +105,28 @@ pros::Distance CataDistance(CATA_DISTANCE_SENSOR_PORT);
 	PISTON INITIALIZATIONS
 */
 
-pros::ADIDigitalOut IntakeActuator(INTAKE_ACTUATOR_PORT);
-pros::ADIDigitalOut WingsActuator(WINGS_ACTUATOR_PORT);
+// pros::ADIDigitalOut IntakeActuator(INTAKE_ACTUATOR_PORT);
+pros::ADIDigitalOut RightFrontWingActuator(RIGHT_FRONT_WING_ACTUATOR_PORT);
+pros::ADIDigitalOut LeftFrontWingActuator(LEFT_FRONT_WING_ACTUATOR_PORT);
 
 /*
 	LEMLIB DRIVE MOTOR INITIALIZATIONS
 */
 
 pros::Motor drive_lb(DRIVE_LB_PORT, pros::E_MOTOR_GEARSET_06, true);
-pros::Motor drive_lm(DRIVE_LM_PORT, pros::E_MOTOR_GEARSET_06, true);
+pros::Motor drive_lt(DRIVE_LM_PORT, pros::E_MOTOR_GEARSET_06, false);
 pros::Motor drive_lf(DRIVE_LF_PORT, pros::E_MOTOR_GEARSET_06, true);
 
 pros::Motor drive_rb(DRIVE_RB_PORT, pros::E_MOTOR_GEARSET_06, false);
-pros::Motor drive_rm(DRIVE_RM_PORT, pros::E_MOTOR_GEARSET_06, false);
+pros::Motor drive_rt(DRIVE_RM_PORT, pros::E_MOTOR_GEARSET_06, true);
 pros::Motor drive_rf(DRIVE_RF_PORT, pros::E_MOTOR_GEARSET_06, false);
 
 /*
 	LEMLIB DRIVE MOTOR GROUP INITIALIZATIONS
 */
 
-pros::MotorGroup drive_left({drive_lb, drive_lm, drive_lf});
-pros::MotorGroup drive_right({drive_rb, drive_rm, drive_rf});
+pros::MotorGroup drive_left({drive_lb, drive_lt, drive_lf});
+pros::MotorGroup drive_right({drive_rb, drive_rt, drive_rf});
 
 /*
 	LEMLIB DRIVE IMU INITIALIZATION
@@ -133,9 +141,9 @@ pros::Imu inertial_sensor(IMU_PORT);
 lemlib::Drivetrain drivetrain {
     &drive_left, // left drivetrain motors
     &drive_right, // right drivetrain motors
-    11, // track width
+    9, // track width
     3.25, // wheel diameter // 3.175
-    360, // wheel rpm
+    450, // wheel rpm
 	10 // chase power
 };
 
@@ -257,11 +265,39 @@ void competition_initialize() {}
  * from where it left off.
  */
 
-ASSET(test1_txt);
-
 void autonomous() {
-    chassis.setPose(-50, -56, 240);
-	skills();
+  switch (get_selected_auton(AutonPot.get_value())) {
+    case 1:
+    	return;
+
+    case 2:
+    	return;
+
+    case 3:
+    	return;
+    
+    case 4:
+		return;
+
+    case 5:
+		return;
+
+    case 6: 
+    	return;
+
+    case 7:
+    	return;
+
+    case 8:
+    	return;
+    
+    case 9:
+		return;
+
+    case 10:
+      chassis.setPose(-50, -56, 240);
+	  skills();
+  }
 }
 
 /**
@@ -280,28 +316,53 @@ void autonomous() {
 
 int match_load_speed = 200;
 
+bool right_front_wing_btn_pressed = false;
+bool right_front_wing_btn_pressed_last = false;
+
+bool left_front_wing_btn_pressed = false;
+bool left_front_wing_btn_pressed_last = false;
 
 void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr(1);
-	pros::Motor right_mtr(2);
-
 	while (true) {
 
 		chassis.arcade(127, 127, 0.0);
 
-		spin_cata_driver(controller.get_digital(DIGITAL_R1), match_load_speed);
+		spin_cata_driver(controller.get_digital(CATA_SHOOT_CONTINUALLY_BUTTON), match_load_speed);
+
+		spin_intake_driver(controller.get_digital(INTAKE_INTAKE_BUTTON), controller.get_digital(INTAKE_OUTTAKE_BUTTON));
 
 
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		int left = master.get_analog(ANALOG_LEFT_Y);
-		int right = master.get_analog(ANALOG_RIGHT_Y);
+		/////////////////
+		// TODO - MAKE INTO A SMALLER FUNCTION
+		////////////////////////////////////////
 
-		left_mtr = left;
-		right_mtr = right;
+		if (controller.get_digital(RIGHT_FRONT_WING_BUTTON)) {
+				right_front_wing_btn_pressed = true;
+			} else {
+				right_front_wing_btn_pressed = false;
+		}
 
-		pros::delay(20);
+		if (right_front_wing_btn_pressed && ! right_front_wing_btn_pressed_last) {
+			if (!right_front_wing_actuated_value) actuate_right_front_wing(true);
+			else actuate_right_front_wing(false);
+		}
+
+    	right_front_wing_btn_pressed_last = right_front_wing_btn_pressed;
+
+		if (controller.get_digital(LEFT_FRONT_WING_BUTTON)) {
+				left_front_wing_btn_pressed = true;
+			} else {
+				left_front_wing_btn_pressed = false;
+		}
+
+		if (left_front_wing_btn_pressed && ! left_front_wing_btn_pressed_last) {
+			if (!left_front_wing_actuated_value) actuate_left_front_wing(true);
+			else actuate_left_front_wing(false);
+		}
+
+    	left_front_wing_btn_pressed_last = left_front_wing_btn_pressed;
+
+		pros::delay(5);
+
 	}
 }

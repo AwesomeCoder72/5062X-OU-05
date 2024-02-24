@@ -9,7 +9,7 @@
 
 float move_distance = 0.0;
 
-const float DISTANCE_AWAY_FROM_TRIBALL = 8.5
+const float DISTANCE_AWAY_FROM_TRIBALL = 8.5;
 
 void goofy_auton() {
 

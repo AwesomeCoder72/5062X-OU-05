@@ -14,24 +14,26 @@
 #include "intake.hpp"
 #include "pistons.hpp"
 #include "pot_auton_selector.hpp"
+#include "drive.hpp"
 
+// RADIO PORT - 13
 
 /*
 	MOTOR PORT DEFINITIONS
 */
 
-#define CATA_5_5W_MOTOR_PORT 1
-#define CATA_11W_MOTOR_PORT 3
+#define CATA_5_5W_MOTOR_PORT 14
+#define CATA_11W_MOTOR_PORT 17
 
-#define INTAKE_MOTOR_PORT 12
+#define INTAKE_MOTOR_PORT 5
 
-#define DRIVE_LB_PORT 6
-#define DRIVE_LM_PORT 7
-#define DRIVE_LF_PORT 8
+#define DRIVE_LB_PORT 11
+#define DRIVE_LT_PORT 12
+#define DRIVE_LF_PORT 3
 
-#define DRIVE_RB_PORT 3
-#define DRIVE_RM_PORT 4
-#define DRIVE_RF_PORT 5
+#define DRIVE_RB_PORT 20
+#define DRIVE_RT_PORT 19
+#define DRIVE_RF_PORT 4
 
 /*
 	IMU PORT DEFINITIONS
@@ -73,8 +75,16 @@
 #define LEFT_FRONT_WING_BUTTON pros::E_CONTROLLER_DIGITAL_UP
 
 
-#define UP_MATCH_LOAD_SPEED_BUTTON pros::E_CONTROLLER_DIGITAL_LEFT
-#define DOWN_MATCH_LOAD_SPEED_BUTTON pros::E_CONTROLLER_DIGITAL_DOWN
+// #define UP_MATCH_LOAD_SPEED_BUTTON pros::E_CONTROLLER_DIGITAL_LEFT
+// #define DOWN_MATCH_LOAD_SPEED_BUTTON pros::E_CONTROLLER_DIGITAL_DOWN
+
+#define LIMIT_DRIVE_SPEED_BUTTON pros::E_CONTROLLER_DIGITAL_LEFT
+
+/*
+	CONTROLLER ARCADE DRIVE AXES
+*/
+
+#define ARCADE_DRIVE_FORWARD_BACKWARD_CHANNEL 
 
 /*
 	CONTROLLER DEFINITION
@@ -114,11 +124,11 @@ pros::ADIDigitalOut LeftFrontWingActuator(LEFT_FRONT_WING_ACTUATOR_PORT);
 */
 
 pros::Motor drive_lb(DRIVE_LB_PORT, pros::E_MOTOR_GEARSET_06, true);
-pros::Motor drive_lt(DRIVE_LM_PORT, pros::E_MOTOR_GEARSET_06, false);
+pros::Motor drive_lt(DRIVE_LT_PORT, pros::E_MOTOR_GEARSET_06, false);
 pros::Motor drive_lf(DRIVE_LF_PORT, pros::E_MOTOR_GEARSET_06, true);
 
 pros::Motor drive_rb(DRIVE_RB_PORT, pros::E_MOTOR_GEARSET_06, false);
-pros::Motor drive_rt(DRIVE_RM_PORT, pros::E_MOTOR_GEARSET_06, true);
+pros::Motor drive_rt(DRIVE_RT_PORT, pros::E_MOTOR_GEARSET_06, true);
 pros::Motor drive_rf(DRIVE_RF_PORT, pros::E_MOTOR_GEARSET_06, false);
 
 /*
@@ -141,7 +151,7 @@ pros::Imu inertial_sensor(IMU_PORT);
 lemlib::Drivetrain drivetrain {
     &drive_left, // left drivetrain motors
     &drive_right, // right drivetrain motors
-    9, // track width
+    10.25, // track width
     3.25, // wheel diameter // 3.175
     450, // wheel rpm
 	10 // chase power
@@ -164,9 +174,9 @@ lemlib::OdomSensors sensors {
 */
 
 lemlib::ControllerSettings lateralPIDController {
-    8, // kP
+    15.4, // kP // last : 160
     0, // kI
-	30, // kD
+	63.5, // kD // last : 1700
 	0, // antiWindUp ???
     1, // smallErrorRange
     100, // smallErrorTimeout
@@ -180,15 +190,15 @@ lemlib::ControllerSettings lateralPIDController {
 */
  
 lemlib::ControllerSettings angularPIDController {
-    4.2, // kP
+    2.9, // kP // 2.2 // 2.67
 	0, // kI
-    40, // kD
+    24.68, // kD // 20
 	0, // antiWindUp ???
     3, // smallErrorRange
     100, // smallErrorTimeout
     10, // largeErrorRange
     500, // largeErrorTimeout
-    40 // slew rate
+    5 // slew rate
 };
 
 /*
@@ -266,38 +276,39 @@ void competition_initialize() {}
  */
 
 void autonomous() {
-  switch (get_selected_auton(AutonPot.get_value())) {
-    case 1:
-    	return;
+	goofy_auton();
+//   switch (get_selected_auton(AutonPot.get_value())) {
+//     case 1:
+//     	return;
 
-    case 2:
-    	return;
+//     case 2:
+//     	return;
 
-    case 3:
-    	return;
+//     case 3:
+//     	return;
     
-    case 4:
-		return;
+//     case 4:
+// 		return;
 
-    case 5:
-		return;
+//     case 5:
+// 		return;
 
-    case 6: 
-    	return;
+//     case 6: 
+//     	return;
 
-    case 7:
-    	return;
+//     case 7:
+//     	return;
 
-    case 8:
-    	return;
+//     case 8:
+//     	return;
     
-    case 9:
-		return;
+//     case 9:
+// 		return;
 
-    case 10:
-      chassis.setPose(-50, -56, 240);
-	  skills();
-  }
+//     case 10:
+//       chassis.setPose(-50, -56, 240);
+// 	  skills();
+//   }
 }
 
 /**
@@ -325,7 +336,16 @@ bool left_front_wing_btn_pressed_last = false;
 void opcontrol() {
 	while (true) {
 
-		chassis.arcade(127, 127, 0.0);
+		// chassis.arcade(127, 127, 0.0);
+
+		split_arcade(controller.get_analog(ANALOG_LEFT_X),
+                     controller.get_analog(ANALOG_LEFT_Y), 
+                     controller.get_analog(ANALOG_RIGHT_X), 
+                     controller.get_analog(ANALOG_RIGHT_Y), 
+                     15, 
+                     15, 
+                     80, 
+                     controller.get_digital(LIMIT_DRIVE_SPEED_BUTTON));
 
 		spin_cata_driver(controller.get_digital(CATA_SHOOT_CONTINUALLY_BUTTON), match_load_speed);
 

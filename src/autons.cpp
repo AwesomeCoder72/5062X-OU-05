@@ -7,9 +7,63 @@
 
 #include "autons.hpp"
 
+float move_distance = 0.0;
+
+const float DISTANCE_AWAY_FROM_TRIBALL = 8.5
+
 void goofy_auton() {
-    spin_cata_auto(200);
-    pros::delay(1000);
+
+    spin_intake_auto(true, 200);
+
+    // chassis.setPose(-36, -36, 90);
+
+    // chassis.turnTo(-60, -36, 10000);
+
+
+
+    chassis.setPose(-34, -57, 9.95);
+
+    chassis.moveToPose(-25.349, -6.409, 9.95, 3000);
+
+    chassis.waitUntilDone();
+
+    chassis.turnTo(-24, -20, 1000, false);
+
+    chassis.waitUntilDone();
+
+    chassis.moveToPose(-24, -20, 0, 3000, {.forwards=false});    
+
+/*
+    chassis.setPose(-38, -60, 90);
+
+    move_distance = 38.00;
+
+    chassis.moveToPose(-14, -60, 90, 10000);
+
+    chassis.waitUntilDone();
+
+    chassis.moveToPose(-38, -60, 90, 10000, {.forwards = false});
+
+    chassis.waitUntilDone();
+*/
+
+    // chassis.setPose(-60, -36, 90);
+
+    // move_distance = 24.00;
+
+    // chassis.moveToPose(-28, -36, 90, 2000, {.minSpeed=70});
+    // chassis.waitUntil(move_distance - 2.0);
+
+    // chassis.cancelAllMotions();
+
+    // chassis.turnTo(-28, -12, 2000);
+
+    // chassis.waitUntilDone();
+
+    // move_distance = 24.00;
+
+    // chassis.moveToPose(-28, -12, 0, 2000, {.minSpeed=70});
+    // chassis.waitUntil(move_distance - 2.0);
 }
 
 void skills() {

@@ -3,6 +3,8 @@
 #include "lemlib/chassis/chassis.hpp"
 extern lemlib::Chassis chassis;
 
+void goofy_auton();
+
 void near_auton();
 void skills();
 void far_auton();

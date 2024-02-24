@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "5062X-LemLib-01",
+    "project_name": "5062X-OU-05",
     "target": "v5",
     "templates": {
       "LemLib": {
@@ -348,7 +348,8 @@
     },
     "upload_options": {
       "slot": 1,
-      "description": "Catapult Testing"
+      "description": "5062X State Bot",
+      "icon": "alien"
     }
   }
 }
